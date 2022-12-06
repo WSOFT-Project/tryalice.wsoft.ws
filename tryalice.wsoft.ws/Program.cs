@@ -1,3 +1,4 @@
+using AliceScript;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using tryalice.wsoft.ws;
@@ -7,5 +8,13 @@ builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+
+
+ThrowErrorManerger.HandleError = true;
+try
+{
+    new AliceScript.NameSpaces.Alice_Runtime().Main();
+}
+catch { }
 
 await builder.Build().RunAsync();

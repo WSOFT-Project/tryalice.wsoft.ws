@@ -1,0 +1,37 @@
+﻿@using AliceScript
+
+
+<div class="mb-3">
+    <label for="exampleFormControlTextarea1" class="form-label">Example textarea</label>
+    <textarea class="form-control" id="exampleFormControlTextarea1" rows="5" cols="33" @bind="Code"></textarea>
+</div>
+
+<button type="button" class="btn btn-success btn-lg" @onclick="OnPresed">実行</button>
+<div class="mb-3">
+    <label for="exampleFormControlTextarea1" class="form-label">Example textarea</label>
+    <textarea class="form-control" id="exampleFormControlTextarea1" rows="5" cols="33" readonly>@Return</textarea>
+</div>
+
+@code {
+    private string Code{ get; set; }
+    private string Return { get; set; }
+    private void OnPresed(){
+        Return = "";
+        AliceScript.Alice.Execute(Code);
+    }
+    protected override void OnAfterRender(bool firstRender)
+    {
+        AliceScript.Interpreter.Instance.OnOutput += Print;
+        AliceScript.Interpreter.Instance.OnDebug += Print;
+
+        AliceScript.ThrowErrorManerger.ThrowError += ThrowErrorManerger_ThrowError;
+    }
+    private void Print(object sender,AliceScript.OutputAvailableEventArgs e){
+        this.Return += e.Output;
+    }
+
+    private void ThrowErrorManerger_ThrowError(object sender, ThrowErrorEventArgs e)
+    {
+      
+    }
+}
