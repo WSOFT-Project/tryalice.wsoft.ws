@@ -14,10 +14,10 @@
 
   <ItemGroup>
     <Reference Include="Losetta">
-      <HintPath>..\..\Losetta\Losetta\bin\Release\net6.0\Losetta.dll</HintPath>
+      <HintPath>..\lib\Losetta.dll</HintPath>
     </Reference>
     <Reference Include="Losetta.Runtime">
-      <HintPath>..\..\Losetta\Losetta.Runtime\bin\Release\net6.0\Losetta.Runtime.dll</HintPath>
+      <HintPath>..\lib\Losetta.Runtime.dll</HintPath>
     </Reference>
   </ItemGroup>
 
