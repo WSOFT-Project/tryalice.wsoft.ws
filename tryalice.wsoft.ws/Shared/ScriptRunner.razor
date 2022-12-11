@@ -2,13 +2,13 @@
 
 
 <div class="mb-3">
-    <label for="exampleFormControlTextarea1" class="form-label">Example textarea</label>
-    <textarea class="form-control" id="exampleFormControlTextarea1" rows="5" cols="33" @bind="Code"></textarea>
+    <label for="exampleFormControlTextarea1" class="form-label">コードエリア</label>
+    <textarea class="form-control" id="exampleFormControlTextarea1" rows="5" cols="33" @bind="Code" placeholder="// Please write here your code..."></textarea>
 </div>
 
 <button type="button" class="btn btn-success btn-lg" @onclick="OnPresed">実行</button>
 <button type="button" class="btn btn-secondary btn-lg" @onclick="OnClear">クリア</button>
-
+<br/>
 <nav>
     <div class="nav nav-tabs" id="nav-tab" role="tablist">
         <button class="nav-link active"
@@ -38,27 +38,34 @@
          id="nav-home"
          role="tabpanel"
          aria-labelledby="nav-home-tab">
-        <textarea class="form-control" id="exampleFormControlTextarea1" rows="5" cols="33" readonly>@Return</textarea>
+        <textarea class="form-control" id="exampleFormControlTextarea1" rows="5" cols="33" @bind="Return" readonly></textarea>
     </div>
     <div class="tab-pane fade"
          id="nav-profile"
          role="tabpanel"
          aria-labelledby="nav-profile-tab">
-        <textarea class="form-control" id="exampleFormControlTextarea2" rows="5" cols="33" readonly>@Error</textarea>
+        <textarea class="form-control text-danger" id="exampleFormControlTextarea2" rows="5" cols="33" @bind="Error" readonly></textarea>
     </div>
 </div>
 
 @code {
-    private string Code{ get; set; }
+    private string Code { get; set; } = "print(\"Hello,World!\");";
     private string Return { get; set; }
     private string Error{ get; set; }
     private void OnPresed(){
         Return = "";
-        AliceScript.Alice.Execute(Code);
+        if (string.IsNullOrWhiteSpace(Code))
+        {
+            OnClear();
+        }
+        else
+        {
+            AliceScript.Alice.Execute(Code);
+        }
     }
     private void OnClear(){
-        Return = "";
-        Error = "";
+        Return = null;
+        Error = null;
     }
     protected override void OnAfterRender(bool firstRender)
     {
@@ -73,6 +80,6 @@
 
     private void ThrowErrorManerger_ThrowError(object sender, ThrowErrorEventArgs e)
     {
-        this.Error += e.Message;
+        this.Error += "[E"+((int)e.ErrorCode).ToString()+"]"+e.ErrorCode.ToString()+":"+e.Message+"\n";
     }
 }
