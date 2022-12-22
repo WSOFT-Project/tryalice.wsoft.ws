@@ -43,15 +43,18 @@
     <div class="container">
         <main role="main" class="pb-3">
             <div id="app">
-                <div class="spinner-border" role="status">
-                </div>
-                Loading...
+                <h3 class="text-center p-5" id="homete">
+                    <div class="spinner-border fw-normal" role="status"></div>
+                </h3>
+                <h1 class="text-center p-5" id="homete">
+                    読み込み中
+                </h1>
             </div>
 
             <div id="blazor-error-ui">
-                An unhandled error has occurred.
-                <a href="" class="reload">Reload</a>
-                <a class="dismiss">🗙</a>
+                例外が発生しました
+                <a href="" class="reload"><i class="bi bi-arrow-clockwise"></i></a>
+                <a class="dismiss"><i class="bi bi-x-lg"></i></a>
             </div>
             <script src="_framework/blazor.webassembly.js"></script>
             <script>navigator.serviceWorker.register('service-worker.js');</script>
