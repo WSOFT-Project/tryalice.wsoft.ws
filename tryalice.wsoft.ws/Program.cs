@@ -10,7 +10,6 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
 
-ThrowErrorManerger.HandleError = true;
 try
 {
     new AliceScript.NameSpaces.Alice_Runtime().Main();
