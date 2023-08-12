@@ -1,4 +1,5 @@
 ﻿@using AliceScript
+@using System.Text;
 
 
 <div class="mb-3">
@@ -64,8 +65,9 @@
         }
     }
     private void OnClear(){
-        Return = null;
-        Error = null;
+        Return = "";
+        Error = "";
+        StateHasChanged();
     }
     protected override void OnAfterRender(bool firstRender)
     {
@@ -76,10 +78,39 @@
     }
     private void Print(object sender,AliceScript.OutputAvailableEventArgs e){
         this.Return += e.Output;
+        StateHasChanged();
     }
 
     private void ThrowErrorManerger_ThrowError(object sender, ThrowErrorEventArgs e)
     {
-        this.Error += "[E" + ((int)e.ErrorCode).ToString() + "]" + e.ErrorCode.ToString() + ":" + e.Message + "\n";
+        //this.Error += "[E" + ((int)e.ErrorCode).ToString() + "]" + e.ErrorCode.ToString() + ":" + e.Message + "\n";
+
+        if (e.Message != "")
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine(e.ErrorCode.ToString() + "(0x" + ((int)e.ErrorCode).ToString("x3") + "): " + e.Message);
+            //sb.AppendLine("エラーコード: [0x" + ((int)e.ErrorCode).ToString("x3")+"] "+e.ErrorCode.ToString()+(string.IsNullOrEmpty(e.Source) ? string.Empty : " in "+e.Source));
+            //sb.AppendLine("説明: "+e.Message);
+            if (!string.IsNullOrWhiteSpace(e.HelpLink))
+            {
+                sb.AppendLine("詳細情報: " + e.HelpLink);
+            }
+            if (e.Script != null)
+            {
+                if (e.Script.StackTrace.Count > 0)
+                {
+                    var st = new List<ParsingScript.StackInfo>(e.Script.StackTrace);
+                    st.Reverse();
+                    sb.AppendLine("スタックトレース");
+                    foreach (var ss in st)
+                    {
+                        sb.Append("  ");
+                        sb.AppendLine(ss.ToString());
+                    }
+                }
+            }
+            this.Return += sb.ToString() + "\n";
+            StateHasChanged();
+        }
     }
 }
