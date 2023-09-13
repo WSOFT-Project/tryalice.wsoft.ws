@@ -12,7 +12,7 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.
 
 try
 {
-    new AliceScript.NameSpaces.Alice_Runtime().Main();
+    AliceScript.Runtime.InitBasicAPI();
 }
 catch { }
 
