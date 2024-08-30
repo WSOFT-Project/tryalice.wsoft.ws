@@ -1,5 +1,6 @@
-﻿@using AliceScript
+﻿@using AliceScript;
 @using System.Text;
+@inject NavigationManager _navigationManager
 
 
 <div class="mb-3">
@@ -7,12 +8,12 @@
     <textarea class="form-control" id="exampleFormControlTextarea1" rows="5" cols="33" @bind="Code" placeholder="// Please write here your code..."></textarea>
 </div>
 
-<button type="button" class="btn btn-success btn-lg" @onclick="OnPresed">実行</button>
+<button type="button" class="btn btn-success btn-lg" @onclick="e=>OnPresed()">実行</button>
 <button type="button" class="btn btn-secondary btn-lg" @onclick="OnClear">クリア</button>
 <br/>
 <nav>
     <div class="nav nav-tabs" id="nav-tab" role="tablist">
-        <button class="nav-link active"
+        <button class="nav-link @(Visible_Main ? "active" : "")"
                 id="nav-home-tab"
                 data-bs-toggle="tab"
                 data-bs-target="#nav-home"
@@ -20,9 +21,9 @@
                 role="tab"
                 aria-controls="nav-home"
                 aria-selected="true">
-            標準出力
+            出力
         </button>
-        <button class="nav-link"
+        <button class="nav-link @(Visible_Error ? "active" : "")"
                 id="nav-profile-tab"
                 data-bs-toggle="tab"
                 data-bs-target="#nav-profile"
@@ -35,17 +36,17 @@
     </div>
 </nav>
 <div class="tab-content" id="nav-tabContent">
-    <div class="tab-pane fade show active"
+    <div class="tab-pane fade @(Visible_Main ? "show active" : "")"
          id="nav-home"
          role="tabpanel"
          aria-labelledby="nav-home-tab">
         <textarea class="form-control" id="exampleFormControlTextarea1" rows="5" cols="33" @bind="Return" readonly></textarea>
     </div>
-    <div class="tab-pane fade"
+    <div class="tab-pane fade @(Visible_Error ? "show active" : "")"
          id="nav-profile"
          role="tabpanel"
          aria-labelledby="nav-profile-tab">
-        <textarea class="form-control text-danger" id="exampleFormControlTextarea2" rows="5" cols="33" @bind="Error" readonly></textarea>
+        <textarea class="form-control text-danger" id="exampleFormControlTextarea2" rows="5" cols="33" @bind="Error" readonly="readonly"></textarea>
     </div>
 </div>
 
@@ -53,21 +54,32 @@
     private string Code { get; set; } = "print(\"Hello,World!\");";
     private string Return { get; set; }
     private string Error{ get; set; }
+    private bool Visible_Main { get; set; } = true;
+    private bool Visible_Error { get; set; } = false;
+
+    private string s_printing_buffer = "";
+    private string s_error_buffer = "";
     private void OnPresed(){
-        Return = "";
+        Visible_Main = true;
+        Visible_Error = false;
+        //OnClear();
         if (string.IsNullOrWhiteSpace(Code))
         {
-            OnClear();
+            //OnClear();
         }
         else
         {
             AliceScript.Alice.Execute(Code);
         }
+        Return = s_printing_buffer;
+        Error = s_error_buffer;
+        s_printing_buffer = "";
+        s_error_buffer = "";
+
     }
-    private void OnClear(){
-        Return = "";
-        Error = "";
-        StateHasChanged();
+    private void OnClear()
+    {
+        _navigationManager.NavigateTo(_navigationManager.Uri, true);
     }
     protected override void OnAfterRender(bool firstRender)
     {
@@ -75,17 +87,15 @@
         AliceScript.Interpreter.Instance.OnDebug += Print;
 
         AliceScript.ThrowErrorManager.ThrowError += ThrowErrorManerger_ThrowError;
+        AliceScript.ThrowErrorManager.NotCatch = false;
     }
     private void Print(object sender,AliceScript.OutputAvailableEventArgs e){
-        this.Return += e.Output;
-        StateHasChanged();
+        s_printing_buffer += e.Output;
     }
 
     private void ThrowErrorManerger_ThrowError(object sender, ThrowErrorEventArgs e)
     {
-        //this.Error += "[E" + ((int)e.ErrorCode).ToString() + "]" + e.ErrorCode.ToString() + ":" + e.Message + "\n";
-
-        if (e.Message != "")
+        if (!string.IsNullOrEmpty(e.Message))
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine(e.ErrorCode.ToString() + "(0x" + ((int)e.ErrorCode).ToString("x3") + "): " + e.Message);
@@ -109,8 +119,12 @@
                     }
                 }
             }
-            this.Return += sb.ToString() + "\n";
-            StateHasChanged();
+            s_error_buffer += sb.ToString() + "\n";
+
+            // 例外処理完了
+            e.Handled = true;
+            Visible_Main = false;
+            Visible_Error = true;
         }
     }
 }
